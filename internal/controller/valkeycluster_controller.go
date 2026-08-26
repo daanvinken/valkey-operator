@@ -953,14 +953,13 @@ func buildClusterValkeyNode(cluster *valkeyiov1alpha1.ValkeyCluster, shardIndex 
 		exporter.Enabled = &enabled
 	}
 
-	// Hostname announce primitives only when discovery selects Hostname.
-	// Leave empty for default IP so existing nodes do not get a needless Spec churn.
+	// Hostname announce only when discovery selects Hostname. ClusterDomain is
+	// always written so node TLS ServerName matches getValkeyClusterState.
 	var preferredEndpoint valkeyiov1alpha1.PreferredEndpointType
-	var clusterDomain string
 	if cluster.PrefersHostnameAnnounce() {
 		preferredEndpoint = valkeyiov1alpha1.PreferredEndpointTypeHostname
-		clusterDomain = cluster.GetClusterDomain()
 	}
+	clusterDomain := cluster.GetClusterDomain()
 
 	return &valkeyiov1alpha1.ValkeyNode{
 		ObjectMeta: metav1.ObjectMeta{

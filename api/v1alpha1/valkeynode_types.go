@@ -149,7 +149,7 @@ type ValkeyNodeSpec struct {
 	PreferredEndpointType PreferredEndpointType `json:"preferredEndpointType,omitempty"`
 
 	// ClusterDomain is set by the ValkeyCluster controller from
-	// spec.networking.clusterDomain for Hostname FQDN construction.
+	// spec.networking.clusterDomain for TLS ServerName and Hostname FQDNs.
 	// +optional
 	ClusterDomain string `json:"clusterDomain,omitempty"`
 }

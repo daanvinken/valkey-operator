@@ -327,11 +327,19 @@ func TestBuildClusterValkeyNode_DiscoveryPrimitives(t *testing.T) {
 		Spec:       valkeyv1.ValkeyClusterSpec{Shards: 1, Replicas: 0},
 	}
 
-	t.Run("default IP leaves announce fields empty", func(t *testing.T) {
+	t.Run("default IP leaves PreferredEndpointType empty and still sets ClusterDomain", func(t *testing.T) {
 		n := buildClusterValkeyNode(base, 0, 0)
 		assert.Empty(t, n.Spec.PreferredEndpointType)
-		assert.Empty(t, n.Spec.ClusterDomain)
+		assert.Equal(t, valkeyv1.DefaultClusterDomain, n.Spec.ClusterDomain)
 		assert.Equal(t, "c", n.Labels[LabelCluster])
+	})
+
+	t.Run("IP with custom ClusterDomain still sets ClusterDomain", func(t *testing.T) {
+		c := base.DeepCopy()
+		c.Spec.Networking = &valkeyv1.NetworkingSpec{ClusterDomain: "corp.local"}
+		n := buildClusterValkeyNode(c, 0, 0)
+		assert.Empty(t, n.Spec.PreferredEndpointType)
+		assert.Equal(t, "corp.local", n.Spec.ClusterDomain)
 	})
 
 	t.Run("Hostname sets PreferredEndpointType and ClusterDomain", func(t *testing.T) {
