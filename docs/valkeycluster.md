@@ -372,7 +372,7 @@ Cluster-owned StatefulSets use the **cluster headless Service** as `spec.service
 
 Changing `serviceName` on an existing StatefulSet is immutable. The operator deletes the StatefulSet with **orphan** cascade and recreates it with the new `serviceName` while **keeping the live pod template**. Existing pods are adopted, not deleted by that step. Per-pod DNS names under the headless Service (and the pod `subdomain` the STS controller sets) become reliable after a later pod replace (for example a WorkloadRevision-staged roll), not after the STS-only recreate alone.
 
-`networking.clusterDomain` must match the kubelet cluster domain (`--cluster-domain`). The field is a DNS subdomain (optional trailing dot). Announce and TLS names are built as absolute FQDNs (trailing dot) so resolvers do not append search domains.
+`networking.clusterDomain` must match the kubelet cluster domain (`--cluster-domain`). The field is a DNS subdomain (optional trailing dot on input). Announce and TLS names are built **without** a terminating dot so they are valid SNI / DNS-1123 hostnames (and valid cert SANs). In-cluster Service names already have enough labels that kube-dns does not need an absolute FQDN.
 
 **TLS tip:** with TLS and IP announce (including the default), clients that re-dial announced pod IPs often fail certificate name checks. Prefer `preferredEndpointType: Hostname` and a server cert SAN such as `*.<headlessService>.<namespace>.svc.<clusterDomain>`. The operator sets a non-blocking `TLSEndpointWarning` condition when TLS is on and announce stays IP; Ready is not forced False for that alone.
 
