@@ -196,14 +196,16 @@ func statefulSetServiceName(node *valkeyiov1alpha1.ValkeyNode) string {
 	return valkeyNodeResourceName(node)
 }
 
-// headlessServiceFQDN is the absolute Service DNS name (trailing dot) used for
-// TLS ServerName and Hostname announce.
+// headlessServiceFQDN is the Service DNS name used for TLS ServerName and
+// Hostname announce. No terminating dot: SNI and DNS-1123 host fields reject
+// it, and in-cluster names already have enough labels that kube-dns does not
+// need an absolute FQDN.
 func headlessServiceFQDN(clusterName, namespace, clusterDomain string) string {
 	if clusterDomain == "" {
 		clusterDomain = valkeyiov1alpha1.DefaultClusterDomain
 	}
 	domain := strings.TrimSuffix(clusterDomain, ".")
-	return fmt.Sprintf("%s.%s.svc.%s.", headlessServiceName(clusterName), namespace, domain)
+	return fmt.Sprintf("%s.%s.svc.%s", headlessServiceName(clusterName), namespace, domain)
 }
 
 // statefulSetAfterServiceNameChange builds a create-ready STS with desired
