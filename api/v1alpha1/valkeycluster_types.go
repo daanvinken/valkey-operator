@@ -411,8 +411,8 @@ const (
 // NetworkingSpec groups connectivity configuration for the cluster.
 type NetworkingSpec struct {
 	// ClusterDomain is the DNS suffix kubelet publishes Service DNS under
-	// (kubelet --cluster-domain). Used when building Hostname announce FQDNs.
-	// Must match the cluster. Default cluster.local.
+	// (kubelet --cluster-domain). Used when building Hostname announce FQDNs
+	// and the default TLS ServerName. Must match the cluster. Default cluster.local.
 	// +kubebuilder:default="cluster.local"
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=253
@@ -442,6 +442,15 @@ type DiscoverySpec struct {
 
 // TLSSpec defines the TLS configuration for ValkeyCluster.
 type TLSSpec struct {
+	// ServerName is the hostname used for TLS verification when the operator
+	// connects to a node by pod IP. When unset, the operator uses
+	// valkey-<name>.<namespace>.svc.<clusterDomain> (default cluster.local).
+	// +optional
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=253
+	// +kubebuilder:validation:XValidation:rule="!format.dns1123Subdomain().validate(self).hasValue()",message="must be a valid DNS-1123 subdomain (lowercase alphanumerics, '-' and '.', starting and ending with an alphanumeric)"
+	ServerName string `json:"serverName,omitempty"`
+
 	// Certificates holds the certificate slots used by the cluster.
 	// +kubebuilder:validation:Required
 	Certificates TLSCertificates `json:"certificates"`

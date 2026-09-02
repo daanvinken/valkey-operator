@@ -197,7 +197,8 @@ func statefulSetServiceName(node *valkeyiov1alpha1.ValkeyNode) string {
 }
 
 // headlessServiceFQDN is the absolute Service DNS name (trailing dot) used for
-// TLS ServerName and Hostname announce.
+// Hostname announce. Default TLS ServerName is this name without the trailing
+// dot.
 func headlessServiceFQDN(clusterName, namespace, clusterDomain string) string {
 	if clusterDomain == "" {
 		clusterDomain = valkeyiov1alpha1.DefaultClusterDomain

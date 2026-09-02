@@ -372,7 +372,7 @@ Cluster-owned StatefulSets use the **cluster headless Service** as `spec.service
 
 Changing `serviceName` on an existing StatefulSet is immutable. The operator deletes the StatefulSet with **orphan** cascade and recreates it with the new `serviceName` while **keeping the live pod template**. Existing pods are adopted, not deleted by that step. Per-pod DNS names under the headless Service (and the pod `subdomain` the STS controller sets) become reliable after a later pod replace (for example a WorkloadRevision-staged roll), not after the STS-only recreate alone.
 
-`networking.clusterDomain` must match the kubelet cluster domain (`--cluster-domain`). The field is a DNS subdomain (optional trailing dot). Announce and TLS names are built as absolute FQDNs (trailing dot) so resolvers do not append search domains.
+`networking.clusterDomain` must match the kubelet cluster domain (`--cluster-domain`). The field is a DNS subdomain (optional trailing dot). Hostname announce uses an absolute FQDN (trailing dot) so resolvers do not append search domains. The default TLS `serverName` is that Service DNS name without the trailing dot.
 
 **TLS tip:** with TLS and IP announce (including the default), clients that re-dial announced pod IPs often fail certificate name checks. Prefer `preferredEndpointType: Hostname` and a server cert SAN such as `*.<headlessService>.<namespace>.svc.<clusterDomain>`. The operator sets a non-blocking `TLSEndpointWarning` condition when TLS is on and announce stays IP; Ready is not forced False for that alone.
 
@@ -387,6 +387,8 @@ Changing `serviceName` on an existing StatefulSet is immutable. The operator del
 | `tls.key` | Private key for the certificate |
 
 `certificates` is a set of named slots. `server` is the only one today; the trust-source override, the outbound peer identity and the control-plane identity land as sibling slots in later phases of [#360](https://github.com/valkey-io/valkey-operator/issues/360).
+
+`serverName` is the hostname the operator verifies when it dials a node by pod IP. When unset, it uses `valkey-<name>.<namespace>.svc.<clusterDomain>` (default `cluster.local`). The cluster writes that resolved name onto each `ValkeyNode`; the node client and the metrics exporter (`REDIS_EXPORTER_TLS_SERVER_NAME`) use it as-is. The exporter still dials `localhost`. This does not change what nodes announce in `CLUSTER SLOTS`.
 
 ### Users
 

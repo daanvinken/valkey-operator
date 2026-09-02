@@ -127,7 +127,7 @@ var _ = Describe("Discovery managed config", func() {
 
 	It("getBaseConfig follows PrefersHostnameAnnounce", func() {
 		cluster := getSampleCluster()
-		tls := nodeTLSFromCluster(cluster.GetTLS())
+		tls := nodeTLSFromCluster(cluster)
 		Expect(getBaseConfig(tls, cluster.PrefersHostnameAnnounce())).NotTo(HaveKey("cluster-preferred-endpoint-type"))
 
 		cluster.Spec.Networking = &valkeyiov1alpha1.NetworkingSpec{
