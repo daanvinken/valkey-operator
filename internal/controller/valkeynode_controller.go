@@ -502,14 +502,14 @@ func (r *ValkeyNodeReconciler) orphanAndRecreateStatefulSet(
 	log.Info("StatefulSet serviceName changed; orphan-recreating STS with live template",
 		"name", live.Name, "from", from, "to", to)
 	recreated := statefulSetAfterServiceNameChange(desired, live)
+	if err := controllerutil.SetControllerReference(node, recreated, r.Scheme); err != nil {
+		return nil, err
+	}
 	policy := metav1.DeletePropagationOrphan
 	if err := r.Delete(ctx, live, &client.DeleteOptions{PropagationPolicy: &policy}); err != nil {
 		if client.IgnoreNotFound(err) != nil {
 			return nil, err
 		}
-	}
-	if err := controllerutil.SetControllerReference(node, recreated, r.Scheme); err != nil {
-		return nil, err
 	}
 	if err := r.Create(ctx, recreated); err != nil {
 		if !apierrors.IsAlreadyExists(err) {
