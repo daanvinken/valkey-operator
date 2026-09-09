@@ -39,7 +39,7 @@ var _ = Describe("ValkeyCluster Hostname discovery", Ordered, Label("ValkeyClust
 	const stsName = "valkey-cluster-hostname-e2e-0-0"
 	const podName = "valkey-cluster-hostname-e2e-0-0-0"
 	const headless = "valkey-cluster-hostname-e2e"
-	const announceHostnameFQDN = "$(POD_NAME).valkey-cluster-hostname-e2e.default.svc.cluster.local."
+	const announceHostnameFQDN = "$(POD_NAME).valkey-cluster-hostname-e2e.default.svc.cluster.local"
 	const slotsHostname = "valkey-cluster-hostname-e2e-0-0-0.valkey-cluster-hostname-e2e.default.svc.cluster.local"
 
 	AfterEach(func() {
